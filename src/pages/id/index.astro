@@ -46,17 +46,19 @@ const hero = page?.hero;
       <div class="relative">
         <div class="absolute -inset-3 bg-gradient-to-tr from-teal-200/60 via-amber-200/50 to-orange-200/60 rounded-[2.5rem] -rotate-2"></div>
         <div class="relative rounded-[2.2rem] overflow-hidden bg-white p-2 shadow-xl border border-amber-100">
-          {hero?.image ? (
-            <img
-              src={urlFor(hero.image).width(900).auto('format').url()}
-              alt={hero?.headline || 'Kampus Tunas Gama School'}
-              class="w-full h-[340px] md:h-[420px] object-cover rounded-[1.8rem]"
-            />
-          ) : (
-            <div class="w-full h-[340px] md:h-[420px] rounded-[1.8rem] bg-amber-50 flex items-center justify-center text-slate-400 text-sm">
-              Tunas Gama School
-            </div>
-          )}
+  { (hero?.image || hero?.heroImage || page?.heroImage || page?.sections?.[0]?.image) ? (
+  <img
+    src={urlFor(hero?.image || hero?.heroImage || page?.heroImage || page?.sections?.[0]?.image).width(900).auto('format').url()}
+    alt={hero?.headline || 'Tunas Gama School Campus'}
+    class="w-full h-[340px] md:h-[420px] object-cover rounded-[1.8rem]"
+  />
+) : (
+  <img
+    src="/hero-school.jpg"
+    alt="Tunas Gama School Campus"
+    class="w-full h-[340px] md:h-[420px] object-cover rounded-[1.8rem]"
+  />
+)}
         </div>
       </div>
     </div>
