@@ -1,53 +1,180 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageSections from '../components/PageSections.astro';
-import { getPageBySlug, urlFor } from '../lib/sanity';
+import { getPageBySlug, getSiteSettings, urlFor } from '../lib/sanity';
 
-const page = await getPageBySlug('home', 'en');
+const lang = 'en';
+const page = await getPageBySlug('home', lang);
+const settings = await getSiteSettings(lang);
 ---
 
-<BaseLayout title="Home" lang="en" currentPath="/">
-  <!-- Hero Section -->
-  <section class="max-w-6xl mx-auto px-6 pt-12 pb-16">
-    <div class="grid md:grid-cols-12 gap-10 items-center">
-      <div class="md:col-span-7 space-y-6">
-        <span class="inline-flex items-center gap-2 bg-amber-100 text-amber-800 text-xs font-bold px-4 py-1.5 rounded-full">
-          ✨ Montessori & Merdeka Belajar in Gianyar – Bali
+<BaseLayout title={page?.title || 'Home'} lang={lang} currentPath="/">
+  {/* Render konten utama Home dari Sanity jika tersedia */}
+  {page?.sections && <PageSections sections={page.sections} lang={lang} />}
+
+  {/* 1. Cuplikan About Us */}
+  <section class="max-w-6xl mx-auto px-6 py-16">
+    <div class="bg-white rounded-[2.5rem] border border-amber-100 p-8 md:p-12 shadow-sm grid md:grid-cols-2 gap-10 items-center">
+      <div>
+        <span class="inline-block bg-amber-100 text-amber-800 text-xs font-bold px-3.5 py-1.5 rounded-full mb-4">
+          About Tunas Gama School
         </span>
-        <h1 class="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-slate-800 leading-tight">
-          Where Curiosity Meets <span class="text-teal-600">Creativity</span>
-        </h1>
-        <p class="text-base md:text-lg text-slate-600 leading-relaxed">
-          {page?.heroSubtitle || "Welcome to a vibrant educational journey where curiosity meets creativity, and every child's unique brilliance is celebrated!"}
+        <h2 class="font-display text-3xl md:text-4xl font-bold text-slate-900 mb-4 leading-tight">
+          Nurturing Confident, Creative, and Compassionate Learners
+        </h2>
+        <p class="text-slate-600 leading-relaxed mb-6">
+          Under Yayasan Pakisoka in Gianyar, Bali, we blend the national <strong>Merdeka Belajar</strong> curriculum with a warm, child-centered <strong>Montessori</strong> environment where every child learns at their own natural pace.
         </p>
-        <div class="flex flex-wrap gap-4 pt-2">
-          <a href="/programs" class="bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold px-6 py-3.5 rounded-full shadow-lg shadow-amber-400/30 transition">
-            Explore Programs
-          </a>
-          <a href="/contacts" class="bg-white hover:bg-teal-50 text-teal-700 border-2 border-teal-200 font-bold px-6 py-3.5 rounded-full transition">
-            Schedule a Visit
-          </a>
+        <div class="grid grid-cols-2 gap-4 mb-8">
+          <div class="bg-amber-50/70 rounded-2xl p-4 border border-amber-100">
+            <p class="font-display text-xl font-bold text-teal-700">Holistic</p>
+            <p class="text-xs text-slate-600 mt-1">Character, creativity & academic balance</p>
+          </div>
+          <div class="bg-teal-50/70 rounded-2xl p-4 border border-teal-100">
+            <p class="font-display text-xl font-bold text-amber-600">Bilingual</p>
+            <p class="text-xs text-slate-600 mt-1">Engaging English & Indonesian immersion</p>
+          </div>
         </div>
+        <a
+          href="/about-us"
+          class="inline-flex items-center gap-2 rounded-full bg-slate-900 hover:bg-teal-700 text-white text-sm font-bold px-6 py-3 transition"
+        >
+          Discover Our Story →
+        </a>
       </div>
 
-      <div class="md:col-span-5">
-        <div class="relative">
-          <div class="absolute -inset-3 bg-gradient-to-tr from-amber-300 to-teal-300 rounded-[3rem] rotate-3 opacity-40"></div>
-          {page?.heroImage ? (
-            <img
-              src={urlFor(page.heroImage).width(700).url()}
-              alt="Tunas Gama School Students"
-              class="relative rounded-[2.5rem] border-4 border-white shadow-xl w-full aspect-[4/3] object-cover"
-            />
-          ) : (
-            <div class="relative rounded-[2.5rem] bg-amber-100 border-4 border-white shadow-xl aspect-[4/3] flex items-center justify-center text-amber-700 font-display text-xl">
-              Upload Hero Image in Sanity
-            </div>
-          )}
+      <div class="grid grid-cols-2 gap-4">
+        <div class="bg-gradient-to-br from-amber-100 to-orange-100 rounded-3xl p-6 flex flex-col justify-between min-h-[180px]">
+          <span class="text-3xl">🌱</span>
+          <div>
+            <h3 class="font-display font-bold text-lg text-slate-800">Child-Led Exploration</h3>
+            <p class="text-xs text-slate-600 mt-1">Hands-on learning materials designed to spark curiosity.</p>
+          </div>
+        </div>
+        <div class="bg-gradient-to-br from-teal-100 to-emerald-100 rounded-3xl p-6 flex flex-col justify-between min-h-[180px] md:mt-6">
+          <span class="text-3xl">🎨</span>
+          <div>
+            <h3 class="font-display font-bold text-lg text-slate-800">Creative Expression</h3>
+            <p class="text-xs text-slate-600 mt-1">Art, music, movement, and cultural appreciation.</p>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  {page?.sections && <PageSections sections={page.sections} lang="en" />}
+  {/* 2. Cuplikan Programs */}
+  <section class="max-w-6xl mx-auto px-6 py-12">
+    <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+      <div>
+        <span class="inline-block bg-teal-100 text-teal-800 text-xs font-bold px-3.5 py-1.5 rounded-full mb-3">
+          Our Programs
+        </span>
+        <h2 class="font-display text-3xl md:text-4xl font-bold text-slate-900">
+          Tailored Learning Pathways
+        </h2>
+      </div>
+      <a href="/programs" class="text-sm font-bold text-teal-700 hover:text-amber-600 transition">
+        View All Programs →
+      </a>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="bg-white rounded-3xl border border-amber-100 p-7 shadow-xs hover:shadow-md transition">
+        <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-2xl mb-5">
+          🧸
+        </div>
+        <h3 class="font-display text-xl font-bold text-slate-900 mb-2">Early Years & Playgroup</h3>
+        <p class="text-sm text-slate-600 leading-relaxed mb-5">
+          Sensory play, motor skill development, early socialization, and joyful routines in a nurturing space.
+        </p>
+        <a href="/programs" class="text-xs font-bold text-teal-600 hover:underline">Learn more →</a>
+      </div>
+
+      <div class="bg-white rounded-3xl border border-teal-100 p-7 shadow-xs hover:shadow-md transition">
+        <div class="w-12 h-12 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center text-2xl mb-5">
+          📚
+        </div>
+        <h3 class="font-display text-xl font-bold text-slate-900 mb-2">Kindergarten (TK A & TK B)</h3>
+        <p class="text-sm text-slate-600 leading-relaxed mb-5">
+          Foundational literacy, numeracy, problem-solving, and confidence building through Montessori & Merdeka Belajar.
+        </p>
+        <a href="/programs" class="text-xs font-bold text-teal-600 hover:underline">Learn more →</a>
+      </div>
+
+      <div class="bg-white rounded-3xl border border-orange-100 p-7 shadow-xs hover:shadow-md transition">
+        <div class="w-12 h-12 rounded-2xl bg-orange-100 text-orange-700 flex items-center justify-center text-2xl mb-5">
+          🌏
+        </div>
+        <h3 class="font-display text-xl font-bold text-slate-900 mb-2">Enrichment & Character</h3>
+        <p class="text-sm text-slate-600 leading-relaxed mb-5">
+          Outdoor nature exploration, local Balinese arts, teamwork, and mindfulness habits for lifelong growth.
+        </p>
+        <a href="/programs" class="text-xs font-bold text-teal-600 hover:underline">Learn more →</a>
+      </div>
+    </div>
+  </section>
+
+  {/* 3. Cuplikan Health and Safety */}
+  <section class="max-w-6xl mx-auto px-6 py-12">
+    <div class="bg-teal-50/80 rounded-[2.5rem] border border-teal-100 p-8 md:p-12">
+      <div class="max-w-2xl mb-8">
+        <span class="inline-block bg-white text-teal-700 text-xs font-bold px-3.5 py-1.5 rounded-full mb-3 shadow-2xs">
+          Health & Safety
+        </span>
+        <h2 class="font-display text-3xl font-bold text-slate-900 mb-3">
+          A Safe, Clean, and Caring Campus
+        </h2>
+        <p class="text-sm md:text-base text-slate-600">
+          Every corner of Tunas Gama School is designed to give parents complete peace of mind while children explore freely.
+        </p>
+      </div>
+
+      <div class="grid sm:grid-cols-3 gap-5 mb-8">
+        <div class="bg-white rounded-2xl p-5 border border-teal-100/80">
+          <p class="font-display font-bold text-slate-900 mb-1">🛡️ Child-Safe Facilities</p>
+          <p class="text-xs text-slate-600 leading-relaxed">Secure campus access, child-friendly furniture, and supervised play areas.</p>
+        </div>
+        <div class="bg-white rounded-2xl p-5 border border-teal-100/80">
+          <p class="font-display font-bold text-slate-900 mb-1">🧼 Daily Hygiene Protocol</p>
+          <p class="text-xs text-slate-600 leading-relaxed">Sanitized classrooms, clean washrooms, and healthy handwashing routines.</p>
+        </div>
+        <div class="bg-white rounded-2xl p-5 border border-teal-100/80">
+          <p class="font-display font-bold text-slate-900 mb-1">💛 Attentive Care & First Aid</p>
+          <p class="text-xs text-slate-600 leading-relaxed">Trained educators ready to support children's physical and emotional wellbeing.</p>
+        </div>
+      </div>
+
+      <a
+        href="/health-and-safety"
+        class="inline-flex items-center gap-2 rounded-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-bold px-6 py-3 transition shadow-sm"
+      >
+        Explore Our Safety Standards →
+      </a>
+    </div>
+  </section>
+
+  {/* 4. Cuplikan Contacts & School Visit CTA */}
+  <section class="max-w-6xl mx-auto px-6 pt-8 pb-4">
+    <div class="bg-gradient-to-r from-amber-400 to-amber-300 rounded-[2.5rem] p-8 md:p-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 shadow-md shadow-amber-900/5">
+      <div class="max-w-xl">
+        <h2 class="font-display text-3xl font-bold text-slate-900 mb-3">
+          Come Visit Tunas Gama School
+        </h2>
+        <p class="text-sm md:text-base text-slate-800 mb-4">
+          Schedule a campus tour in Gianyar, meet our teachers, and see our classrooms in action.
+        </p>
+        <p class="text-xs font-semibold text-slate-800">
+          📍 {settings?.contactInfo?.address || 'Jl. Astina Sel. No.20, Bitera, Kec. Gianyar, Bali'}
+        </p>
+      </div>
+      <div class="flex flex-wrap gap-3 shrink-0">
+        <a
+          href="/contacts"
+          class="rounded-full bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold px-7 py-3.5 transition shadow-sm"
+        >
+          Contact & Schedule Visit
+        </a>
+      </div>
+    </div>
+  </section>
 </BaseLayout>
