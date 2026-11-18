@@ -1,0 +1,91 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageSections from '../components/PageSections.astro';
+import { getPageBySlug, getSiteSettings } from '../lib/sanity';
+
+export async function getStaticPaths() {
+  return [
+    { params: { slug: 'about-us' } },
+    { params: { slug: 'programs' } },
+    { params: { slug: 'health-and-safety' } },
+    { params: { slug: 'contacts' } },
+  ];
+}
+
+const { slug } = Astro.params;
+const page = await getPageBySlug(slug, 'en');
+const settings = await getSiteSettings('en');
+---
+
+<BaseLayout title={page?.title || slug} lang="en" currentPath={`/${slug}`}>
+  <!-- Page Header Banner -->
+  <section class="max-w-6xl mx-auto px-6 pt-12 pb-10 text-center">
+    <div class="bg-gradient-to-br from-amber-100 via-orange-50 to-teal-50 border-2 border-amber-200/60 rounded-[2.5rem] py-12 px-6">
+      <h1 class="font-display text-4xl md:text-5xl font-bold text-slate-800 mb-3">
+        {page?.title || slug}
+      </h1>
+      {page?.heroSubtitle && (
+        <p class="max-w-2xl mx-auto text-slate-600 text-base md:text-lg">{page.heroSubtitle}</p>
+      )}
+    </div>
+  </section>
+
+  {page?.sections && <PageSections sections={page.sections} lang="en" />}
+
+  {/* Tampilkan Form Kontak & Peta khusus pada halaman /contacts */}
+  {slug === 'contacts' && (
+    <section class="max-w-5xl mx-auto px-6 mt-6">
+      <div class="grid md:grid-cols-2 gap-8 bg-white border-2 border-teal-100 rounded-[2.5rem] p-8 md:p-10 shadow-lg">
+        <div class="space-y-6">
+          <h2 class="font-display text-2xl font-bold text-slate-800">Get in Touch</h2>
+          <div class="space-y-4 text-sm text-slate-600">
+            <p><strong>Address:</strong> {settings?.contactInfo?.address || 'Gianyar, Bali, Indonesia'}</p>
+            {settings?.contactInfo?.phone && <p><strong>Phone / WhatsApp:</strong> {settings.contactInfo.phone}</p>}
+            {settings?.contactInfo?.email && <p><strong>Email:</strong> {settings.contactInfo.email}</p>}
+          </div>
+          {settings?.contactInfo?.googleMapsEmbed && (
+            <iframe
+              src={settings.contactInfo.googleMapsEmbed}
+              class="w-full h-56 rounded-2xl border-0"
+              loading="lazy"
+            ></iframe>
+          )}
+        </div>
+
+<form id="wa-lead-form" data-wa-number={settings?.contactInfo?.phone || '6281234567890'} class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Parent's Name</label>
+            <input type="text" id="wa-name" required class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-teal-500 focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Email / WhatsApp</label>
+            <input type="text" id="wa-contact" required class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-teal-500 focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Message / Child's Age</label>
+            <textarea id="wa-message" rows="4" required class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-teal-500 focus:outline-none"></textarea>
+          </div>
+          <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3.5 rounded-full shadow-md transition cursor-pointer">
+            Send via WhatsApp
+          </button>
+        </form>
+
+        <script>
+          const waForm = document.getElementById('wa-lead-form') as HTMLFormElement | null;
+          waForm?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const rawPhone = waForm.dataset.waNumber || '';
+            // Otomatis ubah awalan 08... menjadi 628... dan hapus spasi/tanda hubung
+            const cleanPhone = rawPhone.replace(/\D/g, '').replace(/^0/, '62');
+            const name = (document.getElementById('wa-name') as HTMLInputElement).value;
+            const contact = (document.getElementById('wa-contact') as HTMLInputElement).value;
+            const message = (document.getElementById('wa-message') as HTMLTextAreaElement).value;
+
+            const text = `Hello Tunas Gama School, I would like to inquire:\n\n*Parent's Name:* ${name}\n*Email/WA:* ${contact}\n*Message/Child's Age:* ${message}`;
+            window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`, '_blank');
+          });
+        </script>
+      </div>
+    </section>
+  )}
+</BaseLayout>

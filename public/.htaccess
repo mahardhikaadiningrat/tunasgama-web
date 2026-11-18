@@ -1,0 +1,14 @@
+RewriteEngine On
+
+# 1. Paksa semua pengunjung menggunakan HTTPS
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# 2. Tangani Clean URLs (buka /about-us tanpa harus mengetik /about-us.html)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.html -f
+RewriteRule ^(.*)$ $1.html [L]
+
+# 3. Arahkan ke halaman 404 jika halaman tidak ditemukan
+ErrorDocument 404 /404.html

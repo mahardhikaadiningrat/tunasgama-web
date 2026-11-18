@@ -1,0 +1,185 @@
+---
+import { getSiteSettings, urlFor } from '../lib/sanity';
+
+interface Props {
+  title?: string;
+  lang: 'en' | 'id';
+  currentPath: string;
+}
+
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  lang: 'en' | 'id';
+  currentPath: string;
+}
+
+const { title, lang, currentPath } = Astro.props;
+const settings = await getSiteSettings(lang);
+
+const schoolName = settings?.schoolName || 'Tunas Gama School';
+const pageTitle = title ? `${title} - ${schoolName}` : schoolName;
+
+// Hitung URL untuk tombol switch bahasa EN / ID
+const cleanPath = currentPath.replace(/^\/id/, '') || '/';
+const enUrl = cleanPath;
+const idUrl = cleanPath === '/' ? '/id' : `/id${cleanPath}`;
+
+const navLinks = settings?.navLinks || [
+  { label: lang === 'id' ? 'Beranda' : 'Home', url: '/' },
+  { label: lang === 'id' ? 'Tentang Kami' : 'About Us', url: '/about-us' },
+  { label: lang === 'id' ? 'Program' : 'Programs', url: '/programs' },
+  { label: lang === 'id' ? 'Kesehatan & Keselamatan' : 'Health and Safety', url: '/health-and-safety' },
+  { label: lang === 'id' ? 'Kontak' : 'Contacts', url: '/contacts' },
+];
+
+const formatLocaleUrl = (url: string) => {
+  if (lang === 'en') return url;
+  return url === '/' ? '/id' : `/id${url}`;
+};
+---
+
+<!doctype html>
+<html lang={lang} class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{pageTitle}</title>
+    <link rel="icon" type="image/png" href="/favicon.png?v=2" />
+    <link rel="apple-touch-icon" href="/favicon.png?v=2" />
+    <link rel="shortcut icon" type="image/png" href="/favicon.png?v=2" />
+    <link rel="apple-touch-icon" href="/favicon.png?v=2" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: #FFFDF8;
+        color: #1E293B;
+      }
+      h1, h2, h3, h4, .font-display {
+        font-family: 'Fredoka', sans-serif;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen flex flex-col antialiased selection:bg-amber-200 selection:text-slate-900">
+    <!-- Floating Pill Header -->
+    <header class="sticky top-4 z-50 px-4">
+      <nav class="max-w-6xl mx-auto bg-white/95 backdrop-blur-md border border-amber-100 shadow-lg shadow-amber-900/5 rounded-full px-6 py-3 flex items-center justify-between">
+ <a href={formatLocaleUrl('/')} class="flex items-center gap-3">
+          {settings?.logo ? (
+            <img
+              src={urlFor(settings.logo).height(160).auto('format').url()}
+              alt={schoolName}
+              class="h-11 md:h-12 w-auto object-contain"
+            />
+          ) : (
+            <>
+              <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-display font-bold text-xl">
+                TG
+              </div>
+              <span class="font-display font-bold text-lg text-slate-800">{schoolName}</span>
+            </>
+          )}
+        </a>
+
+        <!-- Desktop Menu -->
+        <div class="hidden md:flex items-center gap-6">
+          {navLinks.map((item: any) => {
+            const targetUrl = formatLocaleUrl(item.url);
+            const isActive = currentPath === targetUrl || (targetUrl !== '/' && targetUrl !== '/id' && currentPath.startsWith(targetUrl));
+            return (
+              <a
+                href={targetUrl}
+                class={`text-sm font-semibold transition-colors ${
+                  isActive ? 'text-teal-600' : 'text-slate-600 hover:text-amber-500'
+                }`}
+              >
+                {item.label}
+              </a>
+            );
+          })}
+        </div>
+
+        <!-- Language Switcher & CTA -->
+        <div class="flex items-center gap-3">
+          <div class="flex items-center bg-amber-50 border border-amber-200 rounded-full p-1 text-xs font-bold">
+            <a
+              href={enUrl}
+              class={`px-2.5 py-1 rounded-full transition ${
+                lang === 'en' ? 'bg-amber-400 text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              EN
+            </a>
+            <a
+              href={idUrl}
+              class={`px-2.5 py-1 rounded-full transition ${
+                lang === 'id' ? 'bg-amber-400 text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              ID
+            </a>
+          </div>
+          <a
+            href={formatLocaleUrl('/contacts')}
+            class="hidden sm:inline-flex bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-4 py-2.5 rounded-full shadow-md shadow-teal-600/20 transition"
+          >
+            {lang === 'id' ? 'Daftar Sekarang' : 'Enroll Now'}
+          </a>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+      <slot />
+    </main>
+
+    <!-- Cheerful Footer -->
+    <footer class="bg-teal-900 text-teal-50 mt-20 pt-14 pb-8 rounded-t-[2.5rem]">
+      <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-10 pb-10 border-b border-teal-800">
+        <div>
+          <h3 class="font-display text-2xl font-bold text-white mb-3">{schoolName}</h3>
+          <p class="text-sm text-teal-200 leading-relaxed">
+            {lang === 'id'
+              ? 'Yayasan Pakisoka Gianyar – Bali. Menghadirkan pendidikan holistik berbasis Kurikulum Merdeka Belajar dan pendekatan Montessori.'
+              : 'Yayasan Pakisoka Gianyar – Bali. Providing holistic education with Merdeka Belajar curriculum and Montessori approach.'}
+          </p>
+        </div>
+        <div>
+          <h4 class="font-display text-lg font-semibold text-amber-300 mb-3">
+            {lang === 'id' ? 'Navigasi' : 'Quick Links'}
+          </h4>
+          <ul class="space-y-2 text-sm">
+            {navLinks.map((item: any) => (
+              <li>
+                <a href={formatLocaleUrl(item.url)} class="hover:text-amber-300 transition">
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-display text-lg font-semibold text-amber-300 mb-3">
+            {lang === 'id' ? 'Hubungi Kami' : 'Contact Info'}
+          </h4>
+          <ul class="space-y-2 text-sm text-teal-200">
+            <li>📍 {settings?.contactInfo?.address || 'Gianyar, Bali, Indonesia'}</li>
+            {settings?.contactInfo?.phone && <li>📞 {settings.contactInfo.phone}</li>}
+            {settings?.contactInfo?.email && <li>✉️ {settings.contactInfo.email}</li>}
+          </ul>
+        </div>
+      </div>
+      <div class="max-w-6xl mx-auto px-6 pt-6 text-center text-xs text-teal-300">
+        {settings?.copyrightText || '© 2026 Tunas Gama School. All Rights Reserved.'}
+      </div>
+    </footer>
+  </body>
+</html>

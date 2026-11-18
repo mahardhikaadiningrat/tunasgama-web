@@ -1,0 +1,207 @@
+---
+import { PortableText } from '@portabletext/astro';
+import { urlFor } from '../lib/sanity';
+
+interface Props {
+  sections: any[];
+  lang: 'en' | 'id';
+}
+
+const { sections = [], lang } = Astro.props;
+
+const cardPastelStyles = [
+  'bg-amber-50 border-amber-200 text-amber-900',
+  'bg-teal-50 border-teal-200 text-teal-900',
+  'bg-sky-50 border-sky-200 text-sky-900',
+  'bg-rose-50 border-rose-200 text-rose-900',
+  'bg-purple-50 border-purple-200 text-purple-900',
+  'bg-emerald-50 border-emerald-200 text-emerald-900',
+];
+---
+
+<div class="space-y-20">
+  {sections?.map((section) => {
+    // 1. 3-Column Highlights (Home)
+    if (section._type === 'featureCards') {
+      return (
+        <section class="max-w-6xl mx-auto px-6">
+          <div class="grid md:grid-cols-3 gap-6">
+            {section.cards?.map((card: any, idx: number) => (
+              <div class={`p-8 rounded-3xl border-2 shadow-sm transition hover:-translate-y-1 ${cardPastelStyles[idx % cardPastelStyles.length]}`}>
+                {card.icon && (
+                  <img src={urlFor(card.icon).width(80).url()} alt={card.title} class="w-14 h-14 object-contain mb-5" />
+                )}
+                <h3 class="font-display text-xl font-bold mb-3">{card.title}</h3>
+                <p class="text-sm opacity-90 leading-relaxed">{card.description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      );
+    }
+
+    // 2. Founder Message (About Us)
+    if (section._type === 'founderMessage') {
+      return (
+        <section class="max-w-5xl mx-auto px-6">
+          <div class="bg-white border-2 border-amber-100 rounded-[2.5rem] p-8 md:p-12 shadow-xl shadow-amber-900/5">
+            <div class="flex flex-col md:flex-row gap-8 items-start">
+              {section.founderPhoto && (
+                <div class="w-40 h-48 md:w-48 md:h-56 shrink-0 mx-auto md:mx-0 overflow-hidden rounded-t-full rounded-b-3xl border-4 border-amber-300 shadow-md">
+                  <img
+                    src={urlFor(section.founderPhoto).width(400).url()}
+                    alt={section.founderName}
+                    class="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+              <div class="space-y-4">
+                <div>
+                  <span class="inline-block bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full mb-2">
+                    {lang === 'id' ? 'Sambutan Pendiri' : "Founder's Greeting"}
+                  </span>
+                  <h2 class="font-display text-2xl md:text-3xl font-bold text-slate-800">{section.founderName}</h2>
+                  <p class="text-sm font-semibold text-teal-600">{section.founderRole}</p>
+                </div>
+                <div class="prose prose-slate max-w-none text-slate-600 text-sm md:text-base leading-relaxed space-y-3">
+                  <PortableText value={section.message} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // 3. Mission & Core Values (About Us)
+    if (section._type === 'missionAndValues') {
+      return (
+        <section class="max-w-6xl mx-auto px-6 space-y-12">
+          <div class="bg-gradient-to-r from-teal-600 to-emerald-600 text-white rounded-[2.5rem] p-8 md:p-12 text-center shadow-lg">
+            <h2 class="font-display text-3xl font-bold mb-4">{section.missionTitle}</h2>
+            <p class="max-w-3xl mx-auto text-base md:text-lg text-teal-50 leading-relaxed">{section.missionText}</p>
+          </div>
+
+          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {section.values?.map((val: any, idx: number) => (
+              <div class={`p-6 rounded-3xl border-2 ${cardPastelStyles[idx % cardPastelStyles.length]}`}>
+                <div class="w-9 h-9 rounded-full bg-white font-display font-bold flex items-center justify-center shadow-sm mb-4">
+                  {idx + 1}
+                </div>
+                <h3 class="font-display text-xl font-bold mb-2">{val.title}</h3>
+                <p class="text-sm opacity-90 leading-relaxed">{val.description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      );
+    }
+
+    // 4. Facility Gallery (About Us)
+    if (section._type === 'gallerySection') {
+      return (
+        <section class="max-w-6xl mx-auto px-6">
+          <h2 class="font-display text-3xl font-bold text-center text-slate-800 mb-8">{section.heading}</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {section.images?.map((img: any, idx: number) => (
+              <div class="overflow-hidden rounded-3xl border-4 border-white shadow-md aspect-[4/3] group">
+                <img
+                  src={urlFor(img).width(600).height(450).url()}
+                  alt={`Facility ${idx + 1}`}
+                  class="w-full h-full object-cover transition duration-500 group-hover:scale-105"
+                />
+              </div>
+            ))}
+          </div>
+        </section>
+      );
+    }
+
+    // 5. Curriculum & Programs (Programs)
+    if (section._type === 'programList') {
+      return (
+        <section class="max-w-6xl mx-auto px-6 space-y-10">
+          {section.programs?.map((prog: any, idx: number) => (
+            <div class={`rounded-[2.5rem] border-2 p-8 md:p-10 ${cardPastelStyles[idx % cardPastelStyles.length]}`}>
+              <div class="grid md:grid-cols-12 gap-8 items-center">
+                <div class={prog.image ? 'md:col-span-8' : 'md:col-span-12'}>
+                  <h2 class="font-display text-2xl md:text-3xl font-bold mb-4">{prog.levelName}</h2>
+                  <p class="text-slate-700 leading-relaxed mb-6">{prog.overview}</p>
+                </div>
+                {prog.image && (
+                  <div class="md:col-span-4">
+                    <img
+                      src={urlFor(prog.image).width(500).url()}
+                      alt={prog.levelName}
+                      class="rounded-3xl shadow-md w-full aspect-[4/3] object-cover border-4 border-white"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {prog.components && prog.components.length > 0 && (
+                <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6 pt-6 border-t border-black/10">
+                  {prog.components.map((comp: any) => (
+                    <div class="bg-white/80 backdrop-blur-sm p-4 rounded-2xl shadow-sm">
+                      <h4 class="font-display font-bold text-slate-800 text-sm mb-1">{comp.name}</h4>
+                      <p class="text-xs text-slate-600 leading-relaxed">{comp.detail}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </section>
+      );
+    }
+
+    // 6. Health & Safety Policies (2 Columns)
+    if (section._type === 'policyColumns') {
+      return (
+        <section class="max-w-6xl mx-auto px-6">
+          <div class="grid md:grid-cols-2 gap-8">
+            {/* Left Column */}
+            <div class="bg-teal-50/70 border-2 border-teal-200 rounded-[2.5rem] p-8 space-y-6">
+              <h3 class="font-display text-2xl font-bold text-teal-800 border-b border-teal-200 pb-3">
+                {lang === 'id' ? 'Kesehatan & Kesejahteraan' : 'Health & Well-being'}
+              </h3>
+              {section.leftColumn?.map((pol: any) => (
+                <div class="bg-white p-5 rounded-2xl shadow-sm">
+                  <h4 class="font-display font-bold text-lg text-slate-800 mb-2">{pol.policyTitle}</h4>
+                  <ul class="space-y-2 text-sm text-slate-600">
+                    {pol.points?.map((pt: string) => (
+                      <li class="flex items-start gap-2">
+                        <span class="text-teal-600 font-bold mt-0.5">✓</span>
+                        <span>{pt}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+
+            {/* Right Column */}
+            <div class="bg-amber-50/70 border-2 border-amber-200 rounded-[2.5rem] p-8 space-y-6">
+              <h3 class="font-display text-2xl font-bold text-amber-800 border-b border-amber-200 pb-3">
+                {lang === 'id' ? 'Protokol Keamanan & Keselamatan' : 'Safety & Security Protocols'}
+              </h3>
+              {section.rightColumn?.map((pol: any) => (
+                <div class="bg-white p-5 rounded-2xl shadow-sm">
+                  <h4 class="font-display font-bold text-lg text-slate-800 mb-2">{pol.policyTitle}</h4>
+                  <ul class="space-y-2 text-sm text-slate-600">
+                    {pol.points?.map((pt: string) => (
+                      <li class="flex items-start gap-2">
+                        <span class="text-amber-500 font-bold mt-0.5">✓</span>
+                        <span>{pt}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+  })}
+</div>
