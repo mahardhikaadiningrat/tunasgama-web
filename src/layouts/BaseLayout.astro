@@ -1,13 +1,6 @@
 ---
-import { getSiteSettings, urlFor } from '../lib/sanity';
-
-interface Props {
-  title?: string;
-  lang: 'en' | 'id';
-  currentPath: string;
-}
-
 import '../styles/global.css';
+import { getSiteSettings, urlFor } from '../lib/sanity';
 
 interface Props {
   title?: string;
@@ -47,7 +40,6 @@ const formatLocaleUrl = (url: string) => {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{pageTitle}</title>
     <link rel="icon" type="image/png" href="/favicon.png?v=2" />
-    <link rel="apple-touch-icon" href="/favicon.png?v=2" />
     <link rel="shortcut icon" type="image/png" href="/favicon.png?v=2" />
     <link rel="apple-touch-icon" href="/favicon.png?v=2" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -68,15 +60,16 @@ const formatLocaleUrl = (url: string) => {
     </style>
   </head>
   <body class="min-h-screen flex flex-col antialiased selection:bg-amber-200 selection:text-slate-900">
-    <!-- Floating Pill Header -->
-    <header class="sticky top-4 z-50 px-4">
-      <nav class="max-w-6xl mx-auto bg-white/95 backdrop-blur-md border border-amber-100 shadow-lg shadow-amber-900/5 rounded-full px-6 py-3 flex items-center justify-between">
- <a href={formatLocaleUrl('/')} class="flex items-center gap-3">
+    <!-- Floating Pill Header: Non-sticky di mobile, sticky di desktop (md+) -->
+    <header class="relative md:sticky md:top-4 z-50 px-4 pt-4 md:pt-0">
+      <nav class="max-w-6xl mx-auto bg-white/95 backdrop-blur-md border border-amber-100 shadow-lg shadow-amber-900/5 rounded-full px-4 sm:px-6 py-3 flex items-center justify-between gap-2">
+        <!-- Logo Sekolah -->
+        <a href={formatLocaleUrl('/')} class="flex items-center gap-3 shrink-0">
           {settings?.logo ? (
             <img
               src={urlFor(settings.logo).height(160).auto('format').url()}
               alt={schoolName}
-              class="h-11 md:h-12 w-auto object-contain"
+              class="h-9 sm:h-11 md:h-12 w-auto object-contain"
             />
           ) : (
             <>
@@ -106,8 +99,8 @@ const formatLocaleUrl = (url: string) => {
           })}
         </div>
 
-        <!-- Language Switcher & CTA -->
-        <div class="flex items-center gap-3">
+        <!-- Language Switcher, CTA Desktop & Mobile Hamburger -->
+        <div class="flex items-center gap-2 sm:gap-3">
           <div class="flex items-center bg-amber-50 border border-amber-200 rounded-full p-1 text-xs font-bold">
             <a
               href={enUrl}
@@ -126,14 +119,63 @@ const formatLocaleUrl = (url: string) => {
               ID
             </a>
           </div>
+
           <a
             href={formatLocaleUrl('/contacts')}
             class="hidden sm:inline-flex bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-4 py-2.5 rounded-full shadow-md shadow-teal-600/20 transition"
           >
             {lang === 'id' ? 'Daftar Sekarang' : 'Enroll Now'}
           </a>
+
+          <!-- Tombol Hamburger (Hanya tampil di mobile < md) -->
+          <button
+            id="mobile-menu-btn"
+            type="button"
+            aria-label="Toggle Menu"
+            aria-expanded="false"
+            class="md:hidden inline-flex items-center justify-center w-9 h-9 rounded-full bg-teal-50 text-teal-700 hover:bg-teal-100 transition cursor-pointer"
+          >
+            <svg id="icon-hamburger" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            <svg id="icon-close" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
       </nav>
+
+      <!-- Panel Dropdown Menu Mobile -->
+      <div
+        id="mobile-menu-panel"
+        class="hidden md:hidden max-w-6xl mx-auto mt-2 bg-white/95 backdrop-blur-md border border-amber-100 shadow-lg shadow-amber-900/5 rounded-3xl p-5"
+      >
+        <div class="flex flex-col gap-1.5">
+          {navLinks.map((item: any) => {
+            const targetUrl = formatLocaleUrl(item.url);
+            const isActive = currentPath === targetUrl || (targetUrl !== '/' && targetUrl !== '/id' && currentPath.startsWith(targetUrl));
+            return (
+              <a
+                href={targetUrl}
+                class={`px-4 py-2.5 rounded-2xl text-sm font-semibold transition-colors ${
+                  isActive ? 'bg-teal-50 text-teal-600 font-bold' : 'text-slate-600 hover:bg-amber-50/70 hover:text-amber-500'
+                }`}
+              >
+                {item.label}
+              </a>
+            );
+          })}
+        </div>
+
+        <div class="mt-4 pt-4 border-t border-amber-100">
+          <a
+            href={formatLocaleUrl('/contacts')}
+            class="w-full inline-flex items-center justify-center bg-teal-600 hover:bg-teal-700 text-white text-sm font-bold px-4 py-3 rounded-full shadow-md shadow-teal-600/20 transition"
+          >
+            {lang === 'id' ? 'Daftar Sekarang' : 'Enroll Now'}
+          </a>
+        </div>
+      </div>
     </header>
 
     <!-- Main Content -->
@@ -181,5 +223,19 @@ const formatLocaleUrl = (url: string) => {
         {settings?.copyrightText || '© 2026 Tunas Gama School. All Rights Reserved.'}
       </div>
     </footer>
+
+    <script>
+      const menuBtn = document.getElementById('mobile-menu-btn');
+      const menuPanel = document.getElementById('mobile-menu-panel');
+      const iconHamburger = document.getElementById('icon-hamburger');
+      const iconClose = document.getElementById('icon-close');
+
+      menuBtn?.addEventListener('click', () => {
+        const isOpen = menuPanel?.classList.toggle('hidden') === false;
+        menuBtn.setAttribute('aria-expanded', String(isOpen));
+        iconHamburger?.classList.toggle('hidden', isOpen);
+        iconClose?.classList.toggle('hidden', !isOpen);
+      });
+    </script>
   </body>
 </html>
